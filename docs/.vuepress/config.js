@@ -216,9 +216,9 @@ module.exports = {
             ['/guide/integration-with-vue', 'Integration with Vue'],
             ['/guide/integration-with-angular', 'Integration with Angular'],
             ['/guide/integration-with-svelte', 'Integration with Svelte'],
-            ['/guide/integration-with-vercel-ai-sdk', 'Integration with Vercel AI SDK'],
+            ['/guide/ai-sdk', 'Integration with Vercel AI SDK'],
             ['/guide/integration-with-langchain', 'Integration with LangChain'],
-            ['/guide/integration-with-mcp', 'HyperFormula MCP Server'],
+            ['/guide/mcp-server', 'HyperFormula MCP Server'],
           ]
         },
         {
