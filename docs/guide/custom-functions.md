@@ -358,7 +358,7 @@ it('returns a VALUE error if the range argument contains a string', () => {
 
 ## Working demo
 
-Explore the full working example on [Stackblitz](https://stackblitz.com/github/handsontable/hyperformula-demos/tree/3.2.x/custom-functions?v=${$page.buildDateURIEncoded}).
+Explore the full working example on <a :href="'https://stackblitz.com/github/handsontable/hyperformula-demos/tree/3.3.x/custom-functions?v=' + $page.buildDateURIEncoded">Stackblitz</a>.
 
 This demo contains the implementation of both the
 [`GREET`](#add-a-simple-custom-function) and
@@ -423,6 +423,7 @@ You can set the following argument validation options:
 | `maxValue`                | Number                                    | If set: numerical arguments need to be less than or equal to `maxValue`.                                                                                                                                                                           |
 | `lessThan`                | Number                                    | If set: numerical argument needs to be less than `lessThan`.                                                                                                                                                                                       |
 | `greaterThan`             | Number                                    | If set: numerical argument needs to be greater than `greaterThan`.                                                                                                                                                                                 |
+| `emptyAsDefault`          | Boolean                                   | `true`: an empty argument (e.g., `=FUNC(1,,3)`) is treated as missing and falls back to `defaultValue`. By default (`false`), empty arguments are coerced to the zero-value for their type (`0`, `FALSE`, or `""`). Requires `defaultValue` to be set. |
 
 In your function plugin, in the static `implementedFunctions` property, add an
 array called `parameters`:

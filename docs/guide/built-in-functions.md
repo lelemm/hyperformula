@@ -28,6 +28,7 @@ The latest version of HyperFormula has an extensive collection of
 **{{ $page.functionsCount }}** functions grouped into categories:
 
 - [Array manipulation](#array-manipulation)
+- [Database](#database)
 - [Date and time](#date-and-time)
 - [Engineering](#engineering)
 - [Information](#information)
@@ -40,8 +41,7 @@ The latest version of HyperFormula has an extensive collection of
 - [Statistical](#statistical)
 - [Text](#text)
 
-_Some categories such as compatibility, cube, and database are yet to be
-supported._
+_Some categories such as compatibility and cube are yet to be supported._
 
 ::: tip
 You can modify the built-in functions or create your own, by adding a [custom function](custom-functions).
@@ -58,6 +58,7 @@ Total number of functions: **{{ $page.functionsCount }}**
 | ARRAYFORMULA    | Enables the array arithmetic mode for a single formula.          | ARRAYFORMULA(Formula)                                      |
 | FILTER          | Filters an array, based on multiple conditions (boolean arrays). | FILTER(SourceArray, BoolArray1, BoolArray2, ...BoolArrayN) |
 | ARRAY_CONSTRAIN | Truncates an array to given dimensions.                          | ARRAY_CONSTRAIN(Array, Height, Width)                      |
+| SEQUENCE        | Returns an array of sequential numbers.                          | SEQUENCE(Rows, [Cols], [Start], [Step])                    |
 
 ### Date and time
 
@@ -89,6 +90,23 @@ Total number of functions: **{{ $page.functionsCount }}**
 | WORKDAY.INTL     | Returns the working day number of days from start day.                                                                                                                                                                                  | WORKDAY(Date, Shift[, Mode[, Holidays]])            |
 | YEAR             | Returns the year as a number according to the internal calculation rules.                                                                                                                                                               | YEAR(Number)                                        |
 | YEARFRAC         | Computes the difference between two date values, in fraction of years.                                                                                                                                                                  | YEARFRAC(Date2, Date1[, Format])                    |
+
+### Database
+
+| Function ID | Description                                                                                                     | Syntax                            |
+|:------------|:----------------------------------------------------------------------------------------------------------------|:----------------------------------|
+| DAVERAGE    | Returns the average of all values in a database field that match the given criteria.                            | DAVERAGE(Database, Field, Criteria) |
+| DCOUNT      | Counts the cells containing numbers in a database field that match the given criteria.                          | DCOUNT(Database, Field, Criteria)   |
+| DCOUNTA     | Counts the non-empty cells in a database field that match the given criteria.                                   | DCOUNTA(Database, Field, Criteria)  |
+| DGET        | Returns the single value from a database field that matches the given criteria. Returns #VALUE! if no records match, and #NUM! if more than one record matches. | DGET(Database, Field, Criteria) |
+| DMAX        | Returns the maximum value in a database field that matches the given criteria.                                  | DMAX(Database, Field, Criteria)     |
+| DMIN        | Returns the minimum value in a database field that matches the given criteria.                                  | DMIN(Database, Field, Criteria)     |
+| DPRODUCT    | Returns the product of all values in a database field that match the given criteria.                            | DPRODUCT(Database, Field, Criteria) |
+| DSTDEV      | Returns the sample standard deviation of all values in a database field that match the given criteria.          | DSTDEV(Database, Field, Criteria)   |
+| DSTDEVP     | Returns the population standard deviation of all values in a database field that match the given criteria.      | DSTDEVP(Database, Field, Criteria)  |
+| DSUM        | Returns the sum of all values in a database field that match the given criteria.                                | DSUM(Database, Field, Criteria)     |
+| DVAR        | Returns the sample variance of all values in a database field that match the given criteria.                    | DVAR(Database, Field, Criteria)     |
+| DVARP       | Returns the population variance of all values in a database field that match the given criteria.                | DVARP(Database, Field, Criteria)    |
 
 ### Engineering
 
@@ -435,9 +453,15 @@ Total number of functions: **{{ $page.functionsCount }}**
 | NORMSINV        | Returns value of inverse normal distribution.                                                             | NORMSINV(P)                                                                                                          |
 | PEARSON         | Returns the correlation coefficient between two data sets.                                                | PEARSON(Data1, Data2)                                                                                                |
 | PHI             | Returns probability densitity of normal distribution.                                                     | PHI(X)                                                                                                               |
+| PERCENTILE      | Returns the k-th percentile of values in a range, inclusive of 0 and 1.                                   | PERCENTILE(Data, K)                                                                                                  |
+| PERCENTILE.EXC  | Returns the k-th percentile of values in a range, exclusive of 0 and 1.                                   | PERCENTILE.EXC(Data, K)                                                                                              |
+| PERCENTILE.INC  | Returns the k-th percentile of values in a range, inclusive of 0 and 1.                                   | PERCENTILE.INC(Data, K)                                                                                              |
 | POISSON         | Returns density of Poisson distribution.                                                                  | POISSON(X, Mean, Mode)                                                                                               |
 | POISSON.DIST    | Returns density of Poisson distribution.                                                                  | POISSON.DIST(X, Mean, Mode)                                                                                          |
 | POISSONDIST     | Returns density of Poisson distribution.                                                                  | POISSONDIST(X, Mean, Mode)                                                                                           |
+| QUARTILE        | Returns the quartile of a data set, based on inclusive percentile values.                                  | QUARTILE(Data, Quart)                                                                                                |
+| QUARTILE.EXC    | Returns the quartile of a data set, based on exclusive percentile values.                                 | QUARTILE.EXC(Data, Quart)                                                                                            |
+| QUARTILE.INC    | Returns the quartile of a data set, based on inclusive percentile values.                                 | QUARTILE.INC(Data, Quart)                                                                                            |
 | RSQ             | Returns the squared correlation coefficient between two data sets.                                        | RSQ(Data1, Data2)                                                                                                    |
 | SKEW            | Returns skeweness of a sample.                                                                            | SKEW(Number1, Number2, ...NumberN)                                                                                   |
 | SKEW.P          | Returns skeweness of a population.                                                                        | SKEW.P(Number1, Number2, ...NumberN)                                                                                 |
@@ -502,6 +526,7 @@ Total number of functions: **{{ $page.functionsCount }}**
 | SUBSTITUTE  | Returns string where occurrences of Old_text are replaced by New_text. Replaces only specific occurrence if last parameter is provided.                                                                                                                                                                                         | SUBSTITUTE(Text, Old_text, New_text, [Occurrence]) |
 | T           | Returns text if given value is text, empty string otherwise.                                                                                                                                                                                                                                                                    | T(Value)                                           |
 | TEXT        | Converts a number into text according to a given format.<br>By default, accepts the same formats that can be passed to the [`dateFormats`](../api/interfaces/configparams.md#dateformats) option, but can be further customized with the [`stringifyDateTime`](../api/interfaces/configparams.md#stringifydatetime) option. | TEXT(Number, Format)                               |
+| TEXTJOIN    | Joins text from multiple strings and/or ranges with a delimiter. Supports array/range delimiters that cycle through gaps. When ignore_empty is TRUE, empty strings are skipped. Returns #VALUE! if result exceeds 32,767 characters.                                                                                                 | TEXTJOIN(Delimiter, Ignore_empty, Text1, [Text2, ...]) |
 | TRIM        | Strips extra spaces from text.                                                                                                                                                                                                                                                                                                  | TRIM("Text")                                       |
 | UNICHAR     | Returns the character created by using provided code point.                                                                                                                                                                                                                                                                     | UNICHAR(Number)                                    |
 | UNICODE     | Returns the Unicode code point of a first character of a text.                                                                                                                                                                                                                                                                  | UNICODE(Text)                                      |
