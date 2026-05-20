@@ -8,7 +8,7 @@ HyperFormula adheres to
 
 ## 3.3.0
 
-**Release date: May 18, 2026**
+**Release date: May 20, 2026**
 
 ### Added
 
