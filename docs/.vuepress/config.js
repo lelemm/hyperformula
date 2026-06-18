@@ -238,6 +238,7 @@ module.exports = {
           children: [
             ['/guide/specifications-and-limits', 'Specifications and limits'],
             ['/guide/cell-references', 'Cell references'],
+            ['/guide/formula-parsing', 'Formula parsing'],
             ['/guide/types-of-values', 'Types of values'],
             ['/guide/types-of-errors', 'Types of errors'],
             ['/guide/types-of-operators', 'Types of operators'],

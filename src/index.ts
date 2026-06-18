@@ -45,6 +45,15 @@ import {
   UnableToParseError
 } from './errors'
 import {ExportedCellChange, ExportedChange, ExportedNamedExpressionChange} from './Exporter'
+import {
+  FormulaAstNode,
+  FormulaDependency,
+  FormulaLexingError,
+  FormulaParsingError,
+  FormulaParsingResult,
+  FormulaToken,
+  FormulaTokenizationResult,
+} from './FormulaParsing'
 import {HyperFormula} from './HyperFormula'
 import {RawTranslationPackage} from './i18n'
 import enGB from './i18n/languages/enGB'
@@ -128,6 +137,13 @@ export {
   ConfigParams,
   ExportedChange,
   RawCellContent,
+  FormulaAstNode,
+  FormulaDependency,
+  FormulaLexingError,
+  FormulaParsingError,
+  FormulaParsingResult,
+  FormulaToken,
+  FormulaTokenizationResult,
   FormatInfo,
   Sheet,
   Sheets,

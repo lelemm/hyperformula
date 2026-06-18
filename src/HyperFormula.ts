@@ -15,6 +15,7 @@ import {
   getCellValueFormat,
   getCellValueType,
   isSimpleCellAddress,
+  simpleCellAddress,
   SimpleCellAddress
 } from './Cell'
 import {CellContent, CellContentParser, RawCellContent} from './CellContentParser'
@@ -42,6 +43,12 @@ import {
 } from './errors'
 import {Evaluator} from './Evaluator'
 import {ExportedChange, Exporter} from './Exporter'
+import {
+  FormulaParsingResult,
+  FormulaTokenizationResult,
+  mapFormulaParsingResult,
+  mapFormulaTokenizationResult,
+} from './FormulaParsing'
 import {LicenseKeyValidityState} from './helpers/licenseKeyValidator'
 import {buildTranslationPackage, RawTranslationPackage, TranslationPackage} from './i18n'
 import {FunctionPluginDefinition} from './interpreter'
@@ -4160,6 +4167,61 @@ export class HyperFormula implements TypedEmitter {
   }
 
   /**
+   * Returns lexer tokens and lexing errors for a formula.
+   *
+   * @param {string} formulaString - a formula in a proper format - it must start with "="
+   *
+   * @throws [[ExpectedValueOfTypeError]] if any of its basic type argument is of wrong type
+   * @throws [[NotAFormulaError]] when the provided string is not a valid formula, i.e., does not start with "="
+   *
+   * @example
+   * ```js
+   * const hfInstance = HyperFormula.buildEmpty();
+   *
+   * // returns stable token objects for '=SUM(A1, 2)'
+   * const tokenization = hfInstance.tokenizeFormula('=SUM(A1, 2)');
+   * ```
+   *
+   * @category Helpers
+   */
+  public tokenizeFormula(formulaString: string): FormulaTokenizationResult {
+    validateArgToType(formulaString, 'string', 'formulaString')
+    const formula = this.extractFormulaStringOrThrow(formulaString)
+
+    return mapFormulaTokenizationResult(this._parser.tokenizeFormula(formula))
+  }
+
+  /**
+   * Parses a formula and returns a stable, public AST representation.
+   *
+   * @param {string} formulaString - a formula in a proper format - it must start with "="
+   * @param {SimpleCellAddress} formulaAddress - address used as context for relative references
+   *
+   * @throws [[ExpectedValueOfTypeError]] if any of its basic type argument is of wrong type
+   * @throws [[NotAFormulaError]] when the provided string is not a valid formula, i.e., does not start with "="
+   *
+   * @example
+   * ```js
+   * const hfInstance = HyperFormula.buildEmpty();
+   *
+   * // parses relative references in the context of A1 on the first sheet
+   * const parsing = hfInstance.parseFormula('=SUM(A1, 2)');
+   * ```
+   *
+   * @category Helpers
+   */
+  public parseFormula(formulaString: string, formulaAddress: SimpleCellAddress = simpleCellAddress(0, 0, 0)): FormulaParsingResult {
+    validateArgToType(formulaString, 'string', 'formulaString')
+    if (!isSimpleCellAddress(formulaAddress)) {
+      throw new ExpectedValueOfTypeError('SimpleCellAddress', 'formulaAddress')
+    }
+    const formula = this.extractFormulaStringOrThrow(formulaString)
+    const parser = this.buildNonMutatingFormulaParser()
+
+    return mapFormulaParsingResult(parser.parse(formula, formulaAddress), formulaAddress)
+  }
+
+  /**
    * Parses and then unparses a formula.
    * Returns a normalized formula (e.g., restores the original capitalization of sheet names, function names, cell addresses, and named expressions).
    *
@@ -4545,6 +4607,23 @@ export class HyperFormula implements TypedEmitter {
     if (this._evaluationSuspended) {
       throw new EvaluationSuspendedError()
     }
+  }
+
+  private extractFormulaStringOrThrow(formulaString: string): string {
+    const parsedCellContent = this._cellContentParser.parse(formulaString)
+    if (!(parsedCellContent instanceof CellContent.Formula)) {
+      throw new NotAFormulaError()
+    }
+
+    return parsedCellContent.formula
+  }
+
+  private buildNonMutatingFormulaParser(): ParserWithCaching {
+    return new ParserWithCaching(
+      this._config,
+      this._functionRegistry,
+      this.sheetMapping.getSheetId.bind(this.sheetMapping),
+    )
   }
 
   /**

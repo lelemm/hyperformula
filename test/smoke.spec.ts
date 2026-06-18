@@ -1,4 +1,4 @@
-import {HyperFormula} from '../src'
+import {FormulaAstNode, HyperFormula, NotAFormulaError} from '../src'
 import {SimpleCellAddress, simpleCellAddress} from '../src/Cell'
 
 const adr = (stringAddress: string, sheet: number = 0): SimpleCellAddress => {
@@ -100,6 +100,132 @@ describe('HyperFormula', () => {
     hf.removeRows(0, [1, 1])
 
     expect(hf.getCellValue(adr('A4'))).toBe(6)
+
+    hf.destroy()
+  })
+
+  it('should tokenize formulas with stable token DTOs', () => {
+    const hf = HyperFormula.buildEmpty({licenseKey: 'gpl-v3'})
+
+    const tokenization = hf.tokenizeFormula('=SUM(A1, 2)')
+
+    expect(tokenization.errors).toEqual([])
+    expect(tokenization.tokens.map(token => token.image)).toEqual(['=', 'SUM(', 'A1', ',', ' ', '2', ')'])
+    expect(tokenization.tokens[0]).toMatchObject({
+      type: 'EqualsOp',
+      image: '=',
+      startOffset: 0,
+      endOffset: 0,
+    })
+
+    expect(tokenization.tokens[1]).toMatchObject({
+      type: 'ProcedureName',
+      image: 'SUM(',
+    })
+
+    hf.destroy()
+  })
+
+  it('should return stable lexing errors when tokenizing invalid formulas', () => {
+    const hf = HyperFormula.buildEmpty({licenseKey: 'gpl-v3'})
+
+    const tokenization = hf.tokenizeFormula('=1~')
+
+    expect(tokenization.errors.length).toBe(1)
+    expect(tokenization.errors[0]).toMatchObject({
+      offset: 2,
+    })
+
+    expect(typeof tokenization.errors[0].message).toBe('string')
+
+    hf.destroy()
+  })
+
+  it('should parse formulas into public AST and dependency DTOs', () => {
+    const hf = HyperFormula.buildEmpty({licenseKey: 'gpl-v3'})
+
+    const parsing = hf.parseFormula('=SUM(A1, 2)')
+    const ast = parsing.ast as FormulaAstNode
+
+    expect(parsing.errors).toEqual([])
+    expect(ast).toMatchObject({
+      type: 'FUNCTION_CALL',
+      procedureName: 'SUM',
+    })
+    if (ast.type !== 'FUNCTION_CALL') {
+      throw new Error('Expected function call AST')
+    }
+
+    expect(ast.args[0]).toMatchObject({
+      type: 'CELL_REFERENCE',
+      reference: {
+        sheet: 0,
+        col: 0,
+        row: 0,
+        referenceType: 'CELL_REFERENCE',
+      },
+    })
+
+    expect(parsing.dependencies).toContainEqual({
+      type: 'CELL',
+      address: {
+        sheet: 0,
+        col: 0,
+        row: 0,
+      },
+    })
+
+    hf.destroy()
+  })
+
+  it('should parse unqualified references in the provided sheet context', () => {
+    const hf = HyperFormula.buildFromSheets({
+      Sheet1: [[1]],
+      Sheet2: [[2]],
+    }, {licenseKey: 'gpl-v3'})
+
+    const parsing = hf.parseFormula('=A1', simpleCellAddress(1, 3, 3))
+
+    expect(parsing.dependencies).toEqual([
+      {
+        type: 'CELL',
+        address: {
+          sheet: 1,
+          col: 0,
+          row: 0,
+        },
+      },
+    ])
+
+    hf.destroy()
+  })
+
+  it('should not register placeholder sheets when parsing unknown sheet references', () => {
+    const hf = HyperFormula.buildFromSheets({
+      Sheet1: [[1]],
+    }, {licenseKey: 'gpl-v3'})
+    const sheetNames = hf.getSheetNames()
+
+    const parsing = hf.parseFormula('=Missing!A1')
+
+    expect(hf.getSheetNames()).toEqual(sheetNames)
+    expect(parsing.errors).toEqual([])
+    expect(parsing.ast).toMatchObject({
+      type: 'ERROR_WITH_RAW_INPUT',
+      rawInput: 'Missing!A1',
+      error: {
+        type: 'REF',
+      },
+    })
+
+    hf.destroy()
+  })
+
+  it('should throw NotAFormulaError for non-formula parser API inputs', () => {
+    const hf = HyperFormula.buildEmpty({licenseKey: 'gpl-v3'})
+
+    expect(() => hf.tokenizeFormula('SUM(A1, 2)')).toThrow(NotAFormulaError)
+    expect(() => hf.parseFormula('SUM(A1, 2)')).toThrow(NotAFormulaError)
 
     hf.destroy()
   })
